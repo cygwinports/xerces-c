@@ -1,0 +1,120 @@
+--- origsrc/xerces-c-3.0.1/src/xercesc/util/LogicalPath.c	2007-04-10 10:56:39.000000000 -0400
++++ src/xerces-c-3.0.1/src/xercesc/util/LogicalPath.c	2009-05-03 02:45:35.213300000 -0400
+@@ -24,38 +24,8 @@
+ 
+ /***
+  *
+- *  Previously, each <OS>PlatformUtils.cpp has its onw copy of the
+- *  method weavePaths(), and almost of them implemented the same logic,
+- *  with few platform specific difference, and unfortunately that 
+- *  implementation was wrong.
+- *  
+- *  The only platform specific issue is slash character.
+- *  On all platforms other than Windows, chForwardSlash and chBackSlash 
+- *  are considered slash, while on Windows, two additional characters, 
+- *  chYenSign and chWonSign are slash as well.
+- *
+- *  The idea is to maintain a SINGLE copy of this method rather than
+- *  each <OS>PlatformUtils.cpp has its own copy, we introduce a new
+- *  method, XMLPlatformUtils::isAnySlash(), to replace the direct checking
+- *  code ( if ( c == chForwardSlash || c == chBackSlash).
+- *
+- *  With this approach, we might have a performance hit since isAnySlash() 
+- *  is so frequently used in this implementation, so we intend to make it 
+- *  inline. Then we face a complier issue.
+- *
+- *  There are two compilation units involved, one is PlatformUtils.cpp and 
+- *  the other <OS>PlatformUtils.cpp. When PlatformUtils.cp get compiled,
+- *  the weavePath(), remove**Slash() have dependency upon isAnySlash() which
+- *  is in <OS>PlatformUtils.cpp (and what is worse, it is inlined), so we have
+- *  undefined/unresolved symbol: isAnySlash() on AIX/xlc_r, Solaris/cc and 
+- *  Linux/gcc, while MSVC and HP/aCC are fine with this.
+- *  
+- *  That means we can not place these new methods in PlatformUtils.cpp with
+- *  inlined XMLPlatformUtils::isAnySlash() in <OS>PlatformUtils.cpp.
+- *
+- *  The solution to this is <os>PlatformUtils.cpp will include this file so that
+- *  we have only one copy of these methods while get compiled in <os>PlatformUtils
+- *  inlined isAnySlash().
++ *  Uses inline implementation XMLPlatformUtils::isAnySlashImpl rather
++ *  than public implementation XMLPlatformUtils::isAnySlash for efficiency.
+  *
+  ***/
+ XMLCh* XMLPlatformUtils::weavePaths(const XMLCh* const    basePath
+@@ -84,7 +54,7 @@ XMLCh* XMLPlatformUtils::weavePaths(cons
+     // Remove anything after the last slash
+     //
+     const XMLCh* basePtr = basePath + (XMLString::stringLen(basePath) - 1);
+-    while ((basePtr >= basePath)  &&  ((isAnySlash(*basePtr) == false)))
++    while ((basePtr >= basePath)  &&  ((isAnySlashImpl(*basePtr) == false)))
+     {
+         basePtr--;
+     }
+@@ -136,9 +106,9 @@ void XMLPlatformUtils::removeDotSlash(XM
+     {
+         if ( 3 <= srcLen )
+         {
+-            if ( (isAnySlash(*srcPtr))     &&
++            if ( (isAnySlashImpl(*srcPtr))     &&
+                 (chPeriod == *(srcPtr+1)) &&
+-                (isAnySlash(*(srcPtr+2)))  )
++                (isAnySlashImpl(*(srcPtr+2)))  )
+             {
+                 // "\.\x" seen
+                 // skip the first two, and start from the 3rd,
+@@ -204,7 +174,7 @@ void XMLPlatformUtils::removeDotDotSlash
+         // Find start of <segment> within substring ending at found point.
+         XMLString::subString(tmp1, path, 0, index-1, manager);
+         segIndex = index - 1;
+-        while ((segIndex >= 0) && (!isAnySlash(tmp1[segIndex])))
++        while ((segIndex >= 0) && (!isAnySlashImpl(tmp1[segIndex])))
+         {
+             segIndex--;
+         }
+@@ -247,10 +217,10 @@ int XMLPlatformUtils::searchSlashDotDotS
+     {
+         if ( 4 <= srcLen )
+         {
+-            if ( (isAnySlash(*srcPtr))     &&
++            if ( (isAnySlashImpl(*srcPtr))     &&
+                  (chPeriod == *(srcPtr+1)) &&
+                  (chPeriod == *(srcPtr+2)) &&
+-                 (isAnySlash(*(srcPtr+3)))  )
++                 (isAnySlashImpl(*(srcPtr+3)))  )
+             {
+                 retVal = (srcPtr - srcPath);
+                 break;
+--- origsrc/xerces-c-3.0.1/src/xercesc/util/PlatformUtils.cpp	2008-09-15 07:05:36.000000000 -0400
++++ src/xerces-c-3.0.1/src/xercesc/util/PlatformUtils.cpp	2009-05-03 02:45:35.224300000 -0400
+@@ -639,9 +639,14 @@ bool XMLPlatformUtils::isRelative(const 
+     return fgFileMgr->isRelative(toCheck, memmgr);
+ }
+ 
++bool
++XMLPlatformUtils::isAnySlash(XMLCh c)
++{
++    return isAnySlashImpl(c);
++}
+ 
+ inline bool
+-XMLPlatformUtils::isAnySlash(XMLCh c)
++XMLPlatformUtils::isAnySlashImpl(XMLCh c)
+ {
+ 	// As far as we know, all supported Xerces
+ 	// platforms use at least a forward slash
+--- origsrc/xerces-c-3.0.1/src/xercesc/util/PlatformUtils.hpp	2008-09-15 07:05:36.000000000 -0400
++++ src/xerces-c-3.0.1/src/xercesc/util/PlatformUtils.hpp	2009-05-03 02:45:35.233300000 -0400
+@@ -494,8 +494,12 @@ public :
+       *
+       * @return true  if the character examined is a slash
+       *         false otherwise
++      *
++      * isAnySlashImpl is inline for use by internal xercesc callers.
++      * isAnySlash is for external clients.
+       */
+-    static inline bool isAnySlash(XMLCh c);
++    static        bool isAnySlash(XMLCh c);
++    static inline bool isAnySlashImpl(XMLCh c);
+ 
+     /** Remove occurences of the pair of dot slash
+       *

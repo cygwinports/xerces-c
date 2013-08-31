@@ -1,0 +1,33 @@
+NAME="xerces-c"
+VERSION=3.1.1
+RELEASE=1
+CATEGORY="Libs"
+SUMMARY="Xerces-C++ XML parser library"
+DESCRIPTION="Xerces-C++ is a validating XML parser written in a portable
+subset of C++. Xerces-C++ makes it easy to give your application the ability
+to read and write XML data. A shared library is provided for parsing,
+generating, manipulating, and validating XML documents using the DOM, SAX,
+and SAX2 APIs."
+HOMEPAGE="http://xerces.apache.org/xerces-c/"
+SRC_URI="mirror://apache/xerces/c/3/sources/xerces-c-${VERSION}.tar.gz"
+PATCH_URI="
+	3.1.1-mutex-posix.patch
+	3.1.1-no-undefined.patch
+	3.0.1-isAnySlashImpl.patch
+"
+
+PKG_NAMES="libxerces-c31 libxerces-c-devel"
+libxerces_c31_DOCS="CREDITS LICENSE NOTICE README"
+libxerces_c31_CONTENTS="usr/bin/cygxerces-c-3-1.dll"
+libxerces_c_devel_CONTENTS="usr/include/ usr/lib/"
+
+CYGCONF_ARGS="
+	ac_cv_func_stricmp=yes
+	ac_cv_func_strnicmp=yes
+"
+
+src_install() {
+	cd ${B}
+	# do not install sample programs
+	cyginstall bin_PROGRAMS=
+}

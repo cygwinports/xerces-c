@@ -1,0 +1,11 @@
+--- origsrc/xerces-c-3.1.1/src/Makefile.am	2009-11-23 02:17:49.000000000 -0600
++++ src/xerces-c-3.1.1/src/Makefile.am	2013-08-30 18:13:58.348544300 -0500
+@@ -33,7 +33,7 @@ lib_LTLIBRARIES = libxerces-c.la
+ #
+ AM_CPPFLAGS =
+ 
+-libxerces_c_la_LDFLAGS = -release ${INTERFACE_VER_D}
++libxerces_c_la_LDFLAGS = -release ${INTERFACE_VER_D} -no-undefined
+ 
+ # This sets {install}/include as target for the headers
+ libxerces_c_ladir = ${includedir}

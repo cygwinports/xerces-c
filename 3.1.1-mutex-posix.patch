@@ -1,0 +1,11 @@
+--- origsrc/xerces-c-3.1.1/m4/xerces_mutexmgr_selection.m4	2006-10-24 05:45:35.000000000 -0500
++++ src/xerces-c-3.1.1/m4/xerces_mutexmgr_selection.m4	2013-08-30 18:15:47.325777500 -0500
+@@ -28,7 +28,7 @@ AC_DEFUN([XERCES_MUTEXMGR_SELECTION],
+ 	AS_IF([test -z "$mutexmgr"],
+ 		[
+ 			case $host_os in
+-			windows* | cygwin* | mingw*)
++			windows* | mingw*)
+ 				mutexmgr=Windows;
+ 				AC_DEFINE([XERCES_USE_MUTEXMGR_WINDOWS], 1, [Define to use the Windows mutex mgr])
+ 				
