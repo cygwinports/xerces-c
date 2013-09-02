@@ -1,0 +1,13 @@
+--- origsrc/xerces-c-3.1.1/m4/xerces_transcoder_selection.m4	2009-11-11 23:57:31.000000000 -0600
++++ src/xerces-c-3.1.1/m4/xerces_transcoder_selection.m4	2013-09-01 18:07:37.933017300 -0500
+@@ -36,7 +36,9 @@ AC_DEFUN([XERCES_TRANSCODER_SELECTION],
+                                                           [no_GNUiconv=true])
+                                          ])
+                         ])
+-	AC_CHECK_FUNCS([iconv_open iconv_close iconv], [], [no_GNUiconv=true])
++	AC_CHECK_FUNCS([iconv_open], [],
++		[AC_CHECK_LIB([iconv],[libiconv_open],[],[no_GNUiconv=true])
++	])
+ 	AC_MSG_CHECKING([whether we can support the GNU iconv Transcoder])
+ 	list_add=
+ 	AS_IF([! $no_GNUiconv], [

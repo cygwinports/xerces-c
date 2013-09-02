@@ -13,6 +13,7 @@ SRC_URI="mirror://apache/xerces/c/3/sources/xerces-c-${VERSION}.tar.gz"
 PATCH_URI="
 	3.1.1-mutex-posix.patch
 	3.1.1-no-undefined.patch
+	3.1.1-gnuiconv.patch
 	3.0.1-isAnySlashImpl.patch
 "
 
