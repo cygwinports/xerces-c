@@ -1,5 +1,5 @@
 NAME="xerces-c"
-VERSION=3.1.1
+VERSION=3.1.2
 RELEASE=1
 CATEGORY="Libs"
 SUMMARY="Xerces-C++ XML parser library"
@@ -22,7 +22,10 @@ libxerces_c31_DOCS="CREDITS LICENSE NOTICE README"
 libxerces_c31_CONTENTS="usr/bin/cygxerces-c-3-1.dll"
 libxerces_c_devel_CONTENTS="usr/include/ usr/lib/"
 
+CPPFLAGS+=" -Dstricmp=strcasecmp -Dstrnicmp=strncasecmp"
 CYGCONF_ARGS="
+	--without-curl
+	--without-icu
 	ac_cv_func_stricmp=yes
 	ac_cv_func_strnicmp=yes
 "
